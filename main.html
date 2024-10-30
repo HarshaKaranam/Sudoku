@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sudoku Game</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Sudoku Game</h1>
+            <div id="timer">Time: 00:00</div>
+            <div class="difficulty">
+                <label for="difficulty">Select Difficulty: </label>
+                <select id="difficulty">
+                    <option value="easy">Easy</option>
+                    <option value="medium">Medium</option>
+                    <option value="hard">Hard</option>
+                </select>
+                <button id="start-game">Start Game</button>
+                <button id="pause-game" disabled>Pause</button>
+                <button id="challenge-friend">Challenge a Friend</button> <!-- New Button -->
+            </div>
+        </header>
+        <main>
+            <table id="sudoku-board">
+                <tbody>
+                    <!-- Sudoku grid will be dynamically generated here -->
+                </tbody>
+            </table>
+        </main>
+
+        <!-- Modal for Challenge a Friend -->
+        <div id="challenge-modal" class="modal">
+            <div class="modal-content">
+                <span class="close">&times;</span>
+                <div class="modal-section">
+                    <h3>Generate a Game Code</h3>
+                    <label for="challenge-difficulty">Select Difficulty:</label>
+                    <select id="challenge-difficulty">
+                        <option value="easy">Easy</option>
+                        <option value="medium">Medium</option>
+                        <option value="hard">Hard</option>
+                    </select>
+                    <button id="generate-code">Generate Code</button>
+                </div>
+
+                <div class="modal-section">
+                    <h3>Search for a Game</h3>
+                    <input type="text" id="search-code" placeholder="Enter game code">
+                    <button id="search-game">Search</button>
+                </div>
+
+                <div class="modal-section">
+                    <h3>Game Code/Result</h3>
+                    <div id="game-result"></div>
+                    <button id="start-challenged-game" disabled>Start Game</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>
