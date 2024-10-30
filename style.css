@@ -1,0 +1,198 @@
+/* Background styling for the entire page */
+body {
+    font-family: 'Roboto', sans-serif;
+    background: linear-gradient(135deg, #e0eafc, #cfdef3);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+    color: #333;
+}
+
+/* Header styling */
+header {
+    font-size: 2em;
+    font-weight: bold;
+    color: #333;
+    text-shadow: 1px 1px 2px #fff;
+    margin-bottom: 20px;
+}
+
+/* Center container styling */
+.container {
+    background-color: #ffffff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    max-width: 600px;
+    margin: 20px;
+    text-align: center;
+}
+
+/* Button styling */
+button {
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    padding: 10px 20px;
+    font-size: 1em;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    margin: 5px;
+}
+
+button:hover {
+    background-color: #45a049;
+}
+
+/* Dropdown styling */
+select {
+    padding: 8px;
+    border-radius: 5px;
+    font-size: 1em;
+    margin-right: 10px;
+}
+
+/* Timer styling */
+#timer {
+    font-size: 1.1em;
+    color: #666;
+}
+
+/* Sudoku board styling */
+#sudoku-board {
+    margin: 20px auto;
+    border-collapse: collapse;
+    display: table;
+}
+
+/* Sudoku board cell styling */
+#sudoku-board td {
+    width: 50px;
+    height: 50px;
+    text-align: center;
+    vertical-align: middle;
+    font-size: 24px;
+    position: relative;
+    padding: 0;
+    border: 1px solid #999;
+}
+
+/* Sudoku board input styling */
+#sudoku-board input {
+    width: 100%;
+    height: 100%;
+    border: none;
+    font-size: 24px;
+    text-align: center;
+    box-sizing: border-box;
+}
+
+/* Thin border around each cell */
+#sudoku-board td {
+    border: 1px solid #999;
+}
+
+/* Thick border around each 3x3 sub-grid */
+#sudoku-board tr:nth-child(3n) td {
+    border-bottom: 3px solid #000;
+}
+
+#sudoku-board tr:nth-child(3n+1) td {
+    border-top: 3px solid #000;
+}
+
+#sudoku-board td:nth-child(3n) {
+    border-right: 3px solid #000;
+}
+
+#sudoku-board td:nth-child(3n+1) {
+    border-left: 3px solid #000;
+}
+
+/* Modal styles */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+}
+
+.modal-content {
+    background-color: white;
+    margin: 15% auto;
+    padding: 20px;
+    border: 1px solid #888;
+    width: 80%;
+    max-width: 500px;
+}
+
+.modal-section {
+    margin-bottom: 20px;
+}
+
+.close {
+    color: #aaa;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+}
+
+.close:hover,
+.close:focus {
+    color: black;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+/* Mobile styling adjustments */
+@media (max-width: 600px) {
+    body {
+        padding: 10px;
+    }
+    .container {
+        padding: 15px;
+        margin: 10px;
+        width: 100%;
+    }
+    button, select {
+        width: 100%;
+        margin-bottom: 10px;
+        font-size: 0.9em;
+    }
+    header {
+        font-size: 1.5em;
+    }
+}
+
+/* Scale down the Sudoku board on smaller screens */
+@media (max-width: 600px) {
+    #sudoku-board {
+        transform: scale(0.8); /* Scale down to 80% */
+    }
+}
+
+@media (max-width: 400px) {
+    #sudoku-board {
+        transform: scale(0.6); /* Scale down further */
+    }
+}
+
+/* Difficulty selection and other options styling */
+.difficulty, .search-puzzle {
+    margin: 10px 0;
+}
+
+input {
+    width: 100%;
+    height: 100%;
+    border: none;
+    font-size: 24px;
+    text-align: center;
+}
