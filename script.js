@@ -147,6 +147,10 @@ function renderBoard(puzzle, restoreInputs = false) {
             input.value = puzzle[i][j] !== 0 ? puzzle[i][j] : ''; // Set pre-filled values
             input.disabled = puzzle[i][j] !== 0; // Disable pre-filled values
 
+            if (puzzle[i][j] !== 0) {
+                cell.classList.add('prefilled'); // Add class for prefilled cells
+            }
+
             // If resuming, restore the user inputs
             if (restoreInputs && userInputs[i] && userInputs[i][j]) {
                 input.value = userInputs[i][j].value;

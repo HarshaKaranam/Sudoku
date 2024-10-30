@@ -1,118 +1,149 @@
-/* Background styling for the entire page */
 body {
-    font-family: 'Roboto', sans-serif;
-    background: linear-gradient(135deg, #e0eafc, #cfdef3);
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    background: linear-gradient(135deg, #f5f7fa 0%, #e4e9f2 100%);
     display: flex;
     justify-content: center;
     align-items: center;
     height: 100vh;
     margin: 0;
-    color: #333;
+    color: #2d3748;
+    overflow: hidden;
 }
 
-/* Header styling */
-header {
-    font-size: 2em;
-    font-weight: bold;
-    color: #333;
-    text-shadow: 1px 1px 2px #fff;
-    margin-bottom: 20px;
-}
-
-/* Center container styling */
+/* Container styling */
 .container {
-    background-color: #ffffff;
-    padding: 20px;
-    border-radius: 8px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    max-width: 600px;
-    margin: 20px;
     text-align: center;
+    max-width: min(90vw, 600px);
+    margin: auto;
+    padding: 1.5rem;
+    background: white;
+    border-radius: 16px;
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+    display: flex;
+    flex-direction: column;
+    height: min(90vh, 800px);
 }
 
-/* Button styling */
-button {
-    background-color: #4CAF50;
-    color: white;
-    border: none;
-    border-radius: 5px;
-    padding: 10px 20px;
-    font-size: 1em;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
-    margin: 5px;
+/* Header styling - reduced margins */
+header {
+    margin-bottom: 1rem;
 }
 
-button:hover {
-    background-color: #45a049;
+header h1 {
+    font-size: clamp(1.5rem, 4vw, 2.5rem);
+    font-weight: 700;
+    color: #1a365d;
+    margin: 0.5rem 0;
 }
 
-/* Dropdown styling */
-select {
-    padding: 8px;
-    border-radius: 5px;
-    font-size: 1em;
-    margin-right: 10px;
-}
-
-/* Timer styling */
+/* Timer styling - reduced padding */
 #timer {
-    font-size: 1.1em;
-    color: #666;
+    font-size: 1.125rem;
+    font-weight: 600;
+    background: #f7fafc;
+    padding: 0.25rem 0.75rem;
+    border-radius: 8px;
+    display: inline-block;
+    color: #4a5568;
+    font-family: 'JetBrains Mono', monospace;
 }
 
-/* Sudoku board styling */
+/* Controls section - compact layout */
+.controls {
+    display: flex;
+    justify-content: center;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    margin: 0.5rem 0;
+}
+
+/* Difficulty selector and buttons - reduced size */
+.difficulty select, .search-puzzle input {
+    padding: 0.25rem 0.75rem;
+    border: 2px solid #e2e8f0;
+    border-radius: 8px;
+    font-size: 0.875rem;
+    transition: all 0.2s ease;
+}
+
+button {
+    padding: 0.25rem 0.75rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    background: #4299e1;
+    color: white;
+}
+
+/* Sudoku board styling - fixed scaling */
 #sudoku-board {
-    margin: 20px auto;
+    margin: 1rem auto;
     border-collapse: collapse;
-    display: table;
+    background: white;
+    border: 3px solid #2d3748 !important; /* Enforced outside border */
+    aspect-ratio: 1;
+    width: min(100%, calc(min(90vh - 200px, 500px)));
+    height: auto;
 }
 
-/* Sudoku board cell styling */
 #sudoku-board td {
-    width: 50px;
-    height: 50px;
-    text-align: center;
-    vertical-align: middle;
-    font-size: 24px;
     position: relative;
     padding: 0;
-    border: 1px solid #999;
+    border: 1px solid #cbd5e0;
+    transition: background-color 0.2s ease;
+    aspect-ratio: 1;
+    width: calc(100% / 9);
+    height: auto;
 }
 
-/* Sudoku board input styling */
 #sudoku-board input {
     width: 100%;
     height: 100%;
     border: none;
-    font-size: 24px;
+    font-size: clamp(1rem, 2.5vw, 1.5rem);
     text-align: center;
     box-sizing: border-box;
+    background: transparent;
+    color: #2d3748;
+    transition: all 0.2s ease;
+    padding: 0;
 }
 
-/* Thin border around each cell */
-#sudoku-board td {
-    border: 1px solid #999;
-}
-
-/* Thick border around each 3x3 sub-grid */
+/* Enhanced grid borders */
 #sudoku-board tr:nth-child(3n) td {
-    border-bottom: 3px solid #000;
+    border-bottom: 3px solid #2d3748;
 }
 
-#sudoku-board tr:nth-child(3n+1) td {
-    border-top: 3px solid #000;
+#sudoku-board tr:first-child td {
+    border-top: 3px solid #2d3748;
 }
 
 #sudoku-board td:nth-child(3n) {
-    border-right: 3px solid #000;
+    border-right: 3px solid #2d3748;
 }
 
-#sudoku-board td:nth-child(3n+1) {
-    border-left: 3px solid #000;
+#sudoku-board td:first-child {
+    border-left: 3px solid #2d3748;
 }
 
-/* Modal styles */
+/* Prefilled numbers styling - enhanced */
+#sudoku-board td[data-prefilled="true"],
+#sudoku-board .prefilled {
+    background: #edf2f7;
+}
+
+#sudoku-board td[data-prefilled="true"] input,
+#sudoku-board .prefilled input {
+    font-weight: 700;
+    color: #1a365d;
+    background: transparent;
+    pointer-events: none;
+}
+
+/* Modal styling - adjusted for viewport */
 .modal {
     display: none;
     position: fixed;
@@ -122,77 +153,67 @@ select {
     width: 100%;
     height: 100%;
     background-color: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(4px);
 }
 
 .modal-content {
     background-color: white;
-    margin: 15% auto;
-    padding: 20px;
-    border: 1px solid #888;
-    width: 80%;
+    margin: 5vh auto;
+    padding: 1.5rem;
+    border-radius: 16px;
+    width: 90%;
     max-width: 500px;
+    max-height: 90vh;
+    overflow-y: auto;
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
 }
 
-.modal-section {
-    margin-bottom: 20px;
-}
-
-.close {
-    color: #aaa;
-    float: right;
-    font-size: 28px;
-    font-weight: bold;
-}
-
-.close:hover,
-.close:focus {
-    color: black;
-    text-decoration: none;
-    cursor: pointer;
-}
-
-/* Mobile styling adjustments */
+/* Responsive design - improved scaling */
 @media (max-width: 600px) {
-    body {
-        padding: 10px;
-    }
     .container {
-        padding: 15px;
-        margin: 10px;
-        width: 100%;
+        padding: 1rem;
+        height: 100vh;
+        max-width: 100vw;
+        border-radius: 0;
     }
-    button, select {
-        width: 100%;
-        margin-bottom: 10px;
-        font-size: 0.9em;
+    
+    header h1 {
+        font-size: 1.5rem;
+        margin: 0.25rem 0;
     }
+    
+    button {
+        padding: 0.25rem 0.5rem;
+        font-size: 0.8rem;
+    }
+    
+    #sudoku-board {
+        margin: 0.5rem auto;
+        width: min(100%, calc(100vh - 200px));
+    }
+}
+
+@media (max-height: 700px) {
+    .container {
+        padding: 0.5rem;
+    }
+    
     header {
-        font-size: 1.5em;
+        margin-bottom: 0.5rem;
     }
-}
-
-/* Scale down the Sudoku board on smaller screens */
-@media (max-width: 600px) {
+    
     #sudoku-board {
-        transform: scale(0.8); /* Scale down to 80% */
+        margin: 0.25rem auto;
     }
 }
 
-@media (max-width: 400px) {
-    #sudoku-board {
-        transform: scale(0.6); /* Scale down further */
-    }
+/* Invalid number highlighting */
+#sudoku-board input.invalid {
+    background: #fff5f5;
+    color: #e53e3e;
 }
 
-/* Difficulty selection and other options styling */
-.difficulty, .search-puzzle {
-    margin: 10px 0;
-}
-
-input {
-    width: 100%;
-    height: 100%;
-    border: none;
-    font-size: 24px;
-    text-align: center;
+/* Highlight same numbers */
+#sudoku-board input.highlight {
+    background: #f0fff4;
 }
