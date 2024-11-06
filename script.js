@@ -1,169 +1,273 @@
 const sudokuBoard = document.getElementById('sudoku-board').getElementsByTagName('tbody')[0];
 const startButton = document.getElementById('start-game');
 const pauseButton = document.getElementById('pause-game');
-const challengeFriendButton = document.getElementById('challenge-friend');
-const modal = document.getElementById('challenge-modal');
-const closeModal = document.querySelector('.close');
-const generateCodeButton = document.getElementById('generate-code');
-const searchGameButton = document.getElementById('search-game');
-const gameResultDiv = document.getElementById('game-result');
-const startChallengedGameButton = document.getElementById('start-challenged-game');
-const challengeDifficultySelect = document.getElementById('challenge-difficulty');
-const searchInput = document.getElementById('search-code');
+const notesToggleButton = document.getElementById('notes-toggle');
+const notesStatusText = document.querySelector('#notes-toggle .notes-status');
 const timerDisplay = document.getElementById('timer');
 const difficultySelect = document.getElementById('difficulty');
 
-let puzzles = {}; // Hold puzzles loaded from JSON
+
+let puzzles = {};
 let puzzleBackup;
+let userInputs = []; // Store user inputs when the game is paused
 let timer;
 let time = 0;
 let isPaused = false;
-let userInputs = []; // Store user inputs when the game is paused
+let isNotesMode = false;
+let selectedCell = null;
 
-startButton.addEventListener('click', startGame);
-pauseButton.addEventListener('click', togglePauseResume);
-
-// Load puzzles from external file with codes
+// Load puzzles
 fetch('puzzles_with_codes.json')
     .then(response => response.json())
     .then(data => {
-        puzzles = data; // Load puzzles with unique codes
-        renderEmptyBoard(); // Initially show an empty board
+        puzzles = data;
+        renderEmptyBoard();
     });
 
-// Modal logic
-challengeFriendButton.addEventListener('click', () => {
-    modal.style.display = "block";
+
+// Toggle Notes mode on and off
+notesToggleButton.addEventListener('click', () => {
+    isNotesMode = !isNotesMode;
+    notesToggleButton.classList.toggle('active', isNotesMode);
+    notesStatusText.textContent = isNotesMode ? 'ON' : 'OFF'; // Update the text based on Notes mode
 });
 
-closeModal.addEventListener('click', () => {
-    modal.style.display = "none";
+// Function to handle cell selection and highlighting
+function addCellSelectionListeners() {
+    const cells = sudokuBoard.getElementsByTagName('td');
+    for (let cell of cells) {
+        cell.addEventListener('click', () => {
+            clearHighlights();
+            if (selectedCell) {
+                selectedCell.classList.remove('selected');
+            }
+            selectedCell = cell;
+            selectedCell.classList.add('selected');
+
+            const cellValue = cell.textContent.trim();
+            if (cellValue) {
+                highlightMatchingNumbers(cellValue); // Highlight matching cells if not empty
+            }
+        });
+    }
+}
+
+// Highlight all cells containing the same number as the selected cell
+function highlightMatchingNumbers(value) {
+    if (!value) return;
+    const cells = sudokuBoard.getElementsByTagName('td');
+    for (let cell of cells) {
+        if (cell.textContent.trim() === value && cell !== selectedCell) {
+            cell.classList.add('highlight');
+        }
+    }
+}
+
+// Clear highlights from all cells
+function clearHighlights() {
+    const cells = sudokuBoard.getElementsByClassName('highlight');
+    while (cells.length) {
+        cells[0].classList.remove('highlight');
+    }
+}
+
+// Event listener for number pad clicks to add numbers to selected cell
+document.getElementById('number-pad').addEventListener('click', (event) => {
+    if (!selectedCell || !event.target.classList.contains('number-btn')) return;
+    const number = event.target.getAttribute('data-value');
+    updateCellValue(number);
 });
 
-window.addEventListener('click', (event) => {
-    if (event.target === modal) {
-        modal.style.display = "none";
+// Handle keyboard input for number entry
+document.addEventListener('keydown', (event) => {
+    if (selectedCell && !selectedCell.dataset.prefilled) {
+        const key = event.key;
+        if (key >= '1' && key <= '9') {
+            updateCellValue(key);
+        }
     }
 });
 
-// Generate game code
-generateCodeButton.addEventListener('click', () => {
-    const difficulty = challengeDifficultySelect.value;
-    const puzzle = getRandomPuzzleWithCode(difficulty);
-    puzzleBackup = puzzle.grid;
-    gameResultDiv.innerText = `Generated Game Code: ${puzzle.code}`;
-    startChallengedGameButton.disabled = false; // Enable start button
-});
+// Update cell value in regular or Notes mode
+function updateCellValue(value) {
+    if (!selectedCell.dataset.prefilled) {
+        if (isNotesMode) {
+            toggleNoteInCell(selectedCell, value); // Toggle note in Notes mode
+        } else {
+            toggleRegularInput(selectedCell, value); // Handle regular input
+        }
+    }
+}
 
-// Search for game by code
-searchGameButton.addEventListener('click', () => {
-    const code = searchInput.value.trim();
-    const puzzle = findPuzzleByCode(code);
-    if (puzzle) {
-        puzzleBackup = puzzle.grid;
-        gameResultDiv.innerText = `Game found! Code: ${puzzle.code}`;
-        startChallengedGameButton.disabled = false; // Enable start button
+// Toggle regular input: Adds or removes the value in the cell
+function toggleRegularInput(cell, value) {
+    if (cell.classList.contains('note-mode')) {
+        // If the cell is in Notes mode, clear notes and switch to regular mode
+        cell.classList.remove('note-mode');
+        cell.innerHTML = '';
+    }
+
+    if (cell.textContent === value) {
+        // If the same value exists, clear it
+        cell.textContent = '';
+        cell.classList.remove('user-entered');
     } else {
-        gameResultDiv.innerText = 'Game not found';
-        startChallengedGameButton.disabled = true;
+        // Otherwise, set the new value
+        cell.textContent = value;
+        cell.classList.add('user-entered');
     }
-});
-
-// Start game with challenged or searched puzzle
-startChallengedGameButton.addEventListener('click', () => {
-    modal.style.display = "none";
-    renderBoard(puzzleBackup);
-    resetTimer();
-    startTimer();
-    pauseButton.disabled = false; // Enable pause button
-    pauseButton.textContent = 'Pause'; // Ensure button shows 'Pause'
-});
-
-// Utility functions
-function getRandomPuzzleWithCode(difficulty) {
-    const puzzleList = puzzles[difficulty];
-    const randomIndex = Math.floor(Math.random() * puzzleList.length);
-    return puzzleList[randomIndex];
+    userInputs[cell.dataset.row][cell.dataset.col] = cell.textContent;
+    clearHighlights();
+    highlightMatchingNumbers(cell.textContent);
 }
 
-function findPuzzleByCode(code) {
-    for (let difficulty in puzzles) {
-        const puzzle = puzzles[difficulty].find(puzzle => puzzle.code === code);
-        if (puzzle) {
-            return puzzle;
+// Toggle note in cell: Adds or removes the note in Notes mode
+function toggleNoteInCell(cell, value) {
+    if (!cell.classList.contains('note-mode')) {
+        cell.classList.add('note-mode');
+        cell.innerHTML = ''; // Clear any regular input
+    }
+
+    // Check if the note already exists in the cell
+    const existingNote = cell.querySelector(`.note-${value}`);
+    if (existingNote) {
+        // If the note exists, remove it
+        cell.removeChild(existingNote);
+        if (!cell.querySelector('.note-mode div')) {
+            // If no notes remain, remove note-mode styling
+            cell.classList.remove('note-mode');
+        }
+    } else {
+        // If the note does not exist, add it
+        const note = document.createElement('div');
+        note.textContent = value;
+        note.classList.add(`note-${value}`);
+        cell.appendChild(note);
+    }
+    clearHighlights();
+}
+
+
+// Add a note to the selected cell
+function addNoteToCell(cell, value) {
+    if (!cell.classList.contains('note-mode')) {
+        cell.classList.add('note-mode');
+        cell.innerHTML = ''; // Clear any regular input
+    }
+    // Add a note in the appropriate position if not already present
+    if (!cell.querySelector(`.note-${value}`)) {
+        const note = document.createElement('div');
+        note.textContent = value;
+        note.classList.add(`note-${value}`);
+        cell.appendChild(note);
+    }
+}
+
+// Store user inputs
+function saveUserInputs() {
+    userInputs = [];
+    const rows = sudokuBoard.getElementsByTagName('tr');
+    for (let i = 0; i < rows.length; i++) {
+        userInputs[i] = [];
+        const cells = rows[i].getElementsByTagName('td');
+        for (let j = 0; j < cells.length; j++) {
+            userInputs[i][j] = cells[j].textContent.trim() || ''; // Save each cell's value
         }
     }
-    return null;
 }
 
-// Function to render an empty board (without any numbers)
-function renderEmptyBoard() {
-    sudokuBoard.innerHTML = ''; // Clear previous board
-    for (let i = 0; i < 9; i++) {
-        let row = document.createElement('tr');
-        for (let j = 0; j < 9; j++) {
-            let cell = document.createElement('td');
-            let input = document.createElement('input');
-            input.type = 'text';
-            input.maxLength = 1;
-            input.value = ''; // No value, just an empty cell
-            cell.appendChild(input);
-            row.appendChild(cell);
+// Restore user inputs
+function restoreUserInputs() {
+    const rows = sudokuBoard.getElementsByTagName('tr');
+    for (let i = 0; i < rows.length; i++) {
+        const cells = rows[i].getElementsByTagName('td');
+        for (let j = 0; j < cells.length; j++) {
+            cells[j].textContent = userInputs[i][j] || ''; // Restore each cell's value
         }
-        sudokuBoard.appendChild(row);
     }
 }
 
-// Start Game
+// Toggle pause and resume functionality
+function togglePauseResume() {
+    if (isPaused) {
+        // Resume the game
+        renderBoard(puzzleBackup, true); // Restore the board and user inputs
+        startTimer();
+        pauseButton.innerHTML = '<i class="fas fa-pause"></i>'; // Set to pause icon
+    } else {
+        // Pause the game
+        stopTimer();
+        saveUserInputs(); // Save current user inputs
+        renderEmptyBoard(); // Show an empty board
+        pauseButton.innerHTML = '<i class="fas fa-play"></i>'; // Set to play icon
+    }
+    isPaused = !isPaused; // Toggle the pause state
+}
+
+// Start a new game with selected difficulty
 function startGame() {
     const difficulty = difficultySelect.value;
     const puzzle = getRandomPuzzle(difficulty);
-    puzzleBackup = puzzle; // Backup the puzzle for resuming
-    userInputs = []; // Reset user inputs when starting a new game
+    puzzleBackup = puzzle;
     renderBoard(puzzle);
     resetTimer();
     startTimer();
-    pauseButton.disabled = false; // Enable pause button
-    pauseButton.textContent = 'Pause'; // Ensure button shows 'Pause'
+    saveUserInputs();
+    pauseButton.disabled = false;
+    pauseButton.innerHTML = '<i class="fas fa-pause"></i>'; // Set to pause icon initially
+    isPaused = false;
 }
 
-// Get random puzzle based on difficulty
+
+// Get a random puzzle based on difficulty
 function getRandomPuzzle(difficulty) {
     const puzzleList = puzzles[difficulty];
     const randomIndex = Math.floor(Math.random() * puzzleList.length);
     return puzzleList[randomIndex].grid;
 }
 
-// Render Sudoku Board with numbers
+// Render the Sudoku board with numbers and optionally restore user inputs
 function renderBoard(puzzle, restoreInputs = false) {
-    sudokuBoard.innerHTML = ''; // Clear previous board
+    sudokuBoard.innerHTML = '';
     for (let i = 0; i < 9; i++) {
         let row = document.createElement('tr');
         for (let j = 0; j < 9; j++) {
             let cell = document.createElement('td');
-            let input = document.createElement('input');
-            input.type = 'text';
-            input.maxLength = 1;
-            input.value = puzzle[i][j] !== 0 ? puzzle[i][j] : ''; // Set pre-filled values
-            input.disabled = puzzle[i][j] !== 0; // Disable pre-filled values
+            cell.dataset.row = i;
+            cell.dataset.col = j;
 
+            // Display prefilled numbers as non-editable
             if (puzzle[i][j] !== 0) {
-                cell.classList.add('prefilled'); // Add class for prefilled cells
+                cell.textContent = puzzle[i][j];
+                cell.dataset.prefilled = "true";
+                cell.classList.add('prefilled');
+            } else if (restoreInputs && userInputs[i] && userInputs[i][j]) {
+                cell.textContent = userInputs[i][j];
+                cell.classList.add('user-entered');
             }
+            row.appendChild(cell);
+        }
+        sudokuBoard.appendChild(row);
+    }
+    addCellSelectionListeners();
+}
 
-            // If resuming, restore the user inputs
-            if (restoreInputs && userInputs[i] && userInputs[i][j]) {
-                input.value = userInputs[i][j].value;
-            }
-
-            cell.appendChild(input);
+// Render an empty Sudoku board
+function renderEmptyBoard() {
+    sudokuBoard.innerHTML = '';
+    for (let i = 0; i < 9; i++) {
+        let row = document.createElement('tr');
+        for (let j = 0; j < 9; j++) {
+            let cell = document.createElement('td');
+            cell.dataset.row = i;
+            cell.dataset.col = j;
             row.appendChild(cell);
         }
         sudokuBoard.appendChild(row);
     }
 }
 
-// Timer Functionality
+// Timer functions
 function startTimer() {
     timer = setInterval(() => {
         time++;
@@ -174,7 +278,7 @@ function startTimer() {
 }
 
 function stopTimer() {
-    clearInterval(timer); // Stop the timer
+    clearInterval(timer);
 }
 
 function resetTimer() {
@@ -183,59 +287,9 @@ function resetTimer() {
     timerDisplay.textContent = 'Time: 00:00';
 }
 
-// Pause/Resume Logic
-function togglePauseResume() {
-    if (isPaused) {
-        // Resume the game
-        restoreUserInputs(); // Restore the previous inputs
-        startTimer(); // Restart the timer
-        pauseButton.textContent = 'Pause'; // Change button text to 'Pause'
-    } else {
-        // Pause the game and show an empty board
-        stopTimer(); // Stop the timer
-        saveUserInputs(); // Save the current inputs
-        clearBoard(); // Clear the board to show an empty grid
-        pauseButton.textContent = 'Resume'; // Change button text to 'Resume'
-    }
-    isPaused = !isPaused; // Toggle the pause state
-}
+// Initialize an empty board and add listeners
+renderEmptyBoard();
 
-// Function to clear the Sudoku board when paused
-function clearBoard() {
-    const inputs = sudokuBoard.querySelectorAll('input');
-    inputs.forEach(input => {
-        input.value = ''; // Clear the input values
-    });
-}
-
-// Function to restore the user's inputs when resuming the game
-function restoreUserInputs() {
-    const inputs = sudokuBoard.querySelectorAll('input');
-    inputs.forEach((input, index) => {
-        const row = Math.floor(index / 9);
-        const col = index % 9;
-
-        // Restore the saved value for each cell
-        if (userInputs[row] && userInputs[row][col]) {
-            input.value = userInputs[row][col].value;
-        }
-    });
-}
-
-// Save the current state of the board (user inputs)
-function saveUserInputs() {
-    userInputs = [];
-    const inputs = sudokuBoard.querySelectorAll('input');
-    inputs.forEach((input, index) => {
-        const row = Math.floor(index / 9);
-        const col = index % 9;
-
-        if (!userInputs[row]) {
-            userInputs[row] = [];
-        }
-
-        userInputs[row][col] = {
-            value: input.value
-        };
-    });
-}
+// Event listeners for game control buttons
+startButton.addEventListener('click', startGame);
+pauseButton.addEventListener('click', togglePauseResume);
