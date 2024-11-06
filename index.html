@@ -20,16 +20,14 @@
                         <option value="hard">Hard</option>
                     </select>
                 </div>
-                <button id="start-game">New Game</button>
                 <div id="timer">Time: 00:00</div> <!-- Moved timer here -->
+                <button id="start-game">New Game</button>
             </div>
         </header>
         <main>
-            <table id="sudoku-board">
-                <tbody>
-                    <!-- Sudoku grid will be dynamically generated here -->
-                </tbody>
-            </table>
+            <div id="sudoku-board">
+                <!-- Sudoku grid will be dynamically generated here -->
+            </div>
 
             <!-- Number pad for selecting numbers -->
             <div id="number-pad">
@@ -52,6 +50,17 @@
                     <i class="fas fa-pencil-alt"></i> <!-- Notes toggle icon -->
                     <span class="notes-status">OFF</span>
                 </button>
+                <button id="erase-button">
+                    <i class="fas fa-eraser"></i> <!-- Eraser icon -->
+                </button>
+                <button id="paint-button">
+                    <i class="fas fa-paint-brush"></i> <!-- Paint icon -->
+                </button>
+                <div id="color-palette" class="hidden">
+                    <div class="color-option" data-color="#ff595e"></div>
+                    <div class="color-option" data-color="#2366ad"></div>
+                    <div class="color-option" data-color="#8ac926"></div>
+                </div>
             </div>
 
         </main>

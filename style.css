@@ -75,63 +75,77 @@ button {
 
 /* Sudoku board styling */
 #sudoku-board {
+    display: grid;
+    grid-template-rows: repeat(9, 1fr);
+    
     margin: 1rem auto;
-    border-collapse: collapse;
-    background: white;
-    border: 3px solid #2d3748;
-    aspect-ratio: 1/1;
     width: min(100%, 450px);
-    height: auto;
+    aspect-ratio: 1 / 1;
 }
 
-#sudoku-board td {
-    width: 40px;
-    height: 40px;
-    font-size: clamp(1rem, 2vw, 1.5rem); /* Responsive font size */
+
+.row {
+    display: grid;
+    grid-template-columns: repeat(9, 1fr);
+}
+
+.cell {
+    width: 100%;
+    height: 100%;
+    font-size: clamp(1rem, 2vw, 1.5rem);
     text-align: center;
-    vertical-align: middle;
-    border: 1px solid #cbd5e0;
-    cursor: default;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     position: relative;
+    border: 1px solid #3f414e; /* Subtle border color */
+    box-sizing: border-box;
+    cursor: default;
     
 }
 
-/* Styling 3x3 grid borders */
-#sudoku-board tr:nth-child(3n) td {
-    border-bottom: 3px solid #2d3748;
+
+
+/* Borders for the 3x3 grids */
+.row:nth-child(3n) .cell {
+    border-bottom: 3px solid #3f414e;
 }
 
-#sudoku-board tr:first-child td {
-    border-top: 3px solid #2d3748;
+.cell:nth-child(3n) {
+    border-right: 3px solid #3f414e;
 }
 
-#sudoku-board td:nth-child(3n) {
-    border-right: 3px solid #2d3748;
+.row:first-child .cell {
+    border-top: 3px solid #3f414e;
 }
 
-#sudoku-board td:first-child {
-    border-left: 3px solid #2d3748;
+.cell:first-child {
+    border-left: 3px solid #3f414e;
+}
+
+.row:last-child .cell {
+    border-bottom: 3px solid #3f414e;
+}
+
+.cell:last-child {
+    border-right: 3px solid #3f414e;
 }
 
 
 /* Prefilled cells */
-#sudoku-board .prefilled {
-    font-weight: normal; /* Remove bold */
-    color: #000000; /* New color for pre-filled text */
-    /* Disable direct editing */
+.cell.prefilled {
+    color: #000;
 }
 
-#sudoku-board .user-entered {
-    color: #2366ad; /* Change this to the color you want for user-entered values */
+.cell.user-entered {
+    color: #2366ad;
 }
 
-/* Highlight for selected and matching cells */
-#sudoku-board td.selected {
+.cell.selected {
     background-color: #82aede;
-
 }
 
-#sudoku-board td.highlight {
+.cell.highlight {
     background-color: #cfe4fb;
 }
 
@@ -164,6 +178,7 @@ button {
     gap: 0.5rem;
     justify-content: center;
     margin-top: 1rem;
+    position: relative;
 }
 
 /* Pause and Notes Toggle button styling */
@@ -184,15 +199,19 @@ button {
 }
 
 /* Styling for cells in Notes mode */
-#sudoku-board .note-mode {
-    font-size: 0.8rem;
+.cell.note-mode {
+    font-size: 0.6rem;
     display: grid;
     grid-template-columns: repeat(3, 1fr);
     grid-template-rows: repeat(3, 1fr);
-    width: 100%;
-    height: 100%;
     color: #2b6cb0;
-    text-align: center;
+    gap: 1px;
+}
+
+.cell.note-mode div {
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 /* Positioning for each number in Notes mode */
@@ -221,4 +240,78 @@ button {
     border-radius: 50%;
     text-align: center;
     line-height: 1;
+}
+
+#erase-button {
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 3rem;
+    height: 3rem;
+    border: none;
+    border-radius: 50%;
+    background-color: #4299e1;
+    cursor: pointer;
+}
+
+#erase-button:hover {
+    background-color: #2b6cb0;
+}
+
+/* Highlight style for notes matching the selected number */
+.highlight-note {
+    background-color: #cfe4fb; /* Light blue background for matching notes */
+    border-radius: 50%; /* Rounded style for note highlights */
+    color: #2366ad; /* Distinct color for highlighted note numbers */
+    font-weight: bold;
+}
+
+#paint-button {
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 3rem;
+    height: 3rem;
+    border: none;
+    border-radius: 50%;
+    background-color: #4299e1;
+    cursor: pointer;
+}
+
+#paint-button:hover {
+    background-color: #2b6cb0;
+}
+
+#color-palette {
+    display: none; /* Start hidden by default */
+    gap: 0.5rem;
+    position: absolute;
+    top: -3.5rem; /* Position below the paint icon */
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: white;
+    padding: 0.5rem;
+    border-radius: 8px;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+    z-index: 100; /* Ensure it appears above other elements */
+}
+
+.color-option {
+    width: 1.5rem;
+    height: 1.5rem;
+    border-radius: 50%;
+    cursor: pointer;
+    border: 2px solid white;
+    box-shadow: 0 0 3px rgba(0, 0, 0, 0.3);
+}
+
+.color-option[data-color="#ff595e"] { background-color: #ff595e; }
+.color-option[data-color="#2366ad"] { background-color: #2366ad; }
+.color-option[data-color="#8ac926"] { background-color: #8ac926; }
+
+/* Hide the color palette by default */
+.hidden {
+    display: none;
 }

@@ -1,10 +1,13 @@
-const sudokuBoard = document.getElementById('sudoku-board').getElementsByTagName('tbody')[0];
+const sudokuBoard = document.getElementById('sudoku-board');
 const startButton = document.getElementById('start-game');
 const pauseButton = document.getElementById('pause-game');
 const notesToggleButton = document.getElementById('notes-toggle');
 const notesStatusText = document.querySelector('#notes-toggle .notes-status');
 const timerDisplay = document.getElementById('timer');
 const difficultySelect = document.getElementById('difficulty');
+const eraseButton = document.getElementById('erase-button');
+const paintButton = document.getElementById('paint-button');
+const colorPalette = document.getElementById('color-palette');
 
 
 let puzzles = {};
@@ -15,6 +18,7 @@ let time = 0;
 let isPaused = false;
 let isNotesMode = false;
 let selectedCell = null;
+let selectedColor = '#2b6cb0'; // Default color for notes
 
 // Load puzzles
 fetch('puzzles_with_codes.json')
@@ -34,7 +38,7 @@ notesToggleButton.addEventListener('click', () => {
 
 // Function to handle cell selection and highlighting
 function addCellSelectionListeners() {
-    const cells = sudokuBoard.getElementsByTagName('td');
+    const cells = sudokuBoard.getElementsByClassName('cell');
     for (let cell of cells) {
         cell.addEventListener('click', () => {
             clearHighlights();
@@ -43,22 +47,30 @@ function addCellSelectionListeners() {
             }
             selectedCell = cell;
             selectedCell.classList.add('selected');
-
             const cellValue = cell.textContent.trim();
             if (cellValue) {
-                highlightMatchingNumbers(cellValue); // Highlight matching cells if not empty
+                highlightMatchingNumbers(cellValue);
             }
         });
     }
 }
 
+
 // Highlight all cells containing the same number as the selected cell
 function highlightMatchingNumbers(value) {
+    clearHighlights();
     if (!value) return;
-    const cells = sudokuBoard.getElementsByTagName('td');
+    const cells = sudokuBoard.getElementsByClassName('cell');
     for (let cell of cells) {
         if (cell.textContent.trim() === value && cell !== selectedCell) {
             cell.classList.add('highlight');
+        }
+        // Highlight matching notes in note-mode cells
+        if (cell.classList.contains('note-mode')) {
+            const notes = cell.querySelectorAll(`.note-${value}`);
+            notes.forEach(note => {
+                note.classList.add('highlight-note'); // Add highlight class to matching notes
+            });
         }
     }
 }
@@ -69,22 +81,33 @@ function clearHighlights() {
     while (cells.length) {
         cells[0].classList.remove('highlight');
     }
+    // Clear highlighted notes in note-mode cells
+    const highlightedNotes = sudokuBoard.getElementsByClassName('highlight-note');
+    while (highlightedNotes.length) {
+        highlightedNotes[0].classList.remove('highlight-note');
+    }
 }
 
-// Event listener for number pad clicks to add numbers to selected cell
+// Event listener for number pad clicks
 document.getElementById('number-pad').addEventListener('click', (event) => {
-    if (!selectedCell || !event.target.classList.contains('number-btn')) return;
-    const number = event.target.getAttribute('data-value');
-    updateCellValue(number);
+    if (!selectedCell && event.target.classList.contains('number-btn')) {
+        const number = event.target.getAttribute('data-value');
+        highlightMatchingNumbers(number);
+    } else if (selectedCell && event.target.classList.contains('number-btn')) {
+        const number = event.target.getAttribute('data-value');
+        updateCellValue(number);
+    }
 });
 
-// Handle keyboard input for number entry
+// Event listener for keyboard number input
 document.addEventListener('keydown', (event) => {
-    if (selectedCell && !selectedCell.dataset.prefilled) {
-        const key = event.key;
-        if (key >= '1' && key <= '9') {
-            updateCellValue(key);
-        }
+    if (!selectedCell && event.key >= '1' && event.key <= '9') {
+        highlightMatchingNumbers(event.key);
+    } else if (selectedCell && event.key >= '1' && event.key <= '9') {
+        updateCellValue(event.key);
+    } else if (event.key === 'Delete' && selectedCell && !selectedCell.dataset.prefilled) {
+        selectedCell.textContent = ''; // Clear the cell's content
+        selectedCell.classList.remove('user-entered'); // Remove user-entered style
     }
 });
 
@@ -142,6 +165,7 @@ function toggleNoteInCell(cell, value) {
         const note = document.createElement('div');
         note.textContent = value;
         note.classList.add(`note-${value}`);
+        note.style.color = selectedColor;
         cell.appendChild(note);
     }
     clearHighlights();
@@ -163,29 +187,30 @@ function addNoteToCell(cell, value) {
     }
 }
 
-// Store user inputs
+// Save and Restor user inputs
+
 function saveUserInputs() {
     userInputs = [];
-    const rows = sudokuBoard.getElementsByTagName('tr');
+    const rows = sudokuBoard.getElementsByClassName('row');
     for (let i = 0; i < rows.length; i++) {
         userInputs[i] = [];
-        const cells = rows[i].getElementsByTagName('td');
+        const cells = rows[i].getElementsByClassName('cell');
         for (let j = 0; j < cells.length; j++) {
-            userInputs[i][j] = cells[j].textContent.trim() || ''; // Save each cell's value
+            userInputs[i][j] = cells[j].textContent.trim() || '';
         }
     }
 }
 
-// Restore user inputs
 function restoreUserInputs() {
-    const rows = sudokuBoard.getElementsByTagName('tr');
+    const rows = sudokuBoard.getElementsByClassName('row');
     for (let i = 0; i < rows.length; i++) {
-        const cells = rows[i].getElementsByTagName('td');
+        const cells = rows[i].getElementsByClassName('cell');
         for (let j = 0; j < cells.length; j++) {
-            cells[j].textContent = userInputs[i][j] || ''; // Restore each cell's value
+            cells[j].textContent = userInputs[i][j] || '';
         }
     }
 }
+
 
 // Toggle pause and resume functionality
 function togglePauseResume() {
@@ -230,9 +255,11 @@ function getRandomPuzzle(difficulty) {
 function renderBoard(puzzle, restoreInputs = false) {
     sudokuBoard.innerHTML = '';
     for (let i = 0; i < 9; i++) {
-        let row = document.createElement('tr');
+        let row = document.createElement('div');
+        row.classList.add('row');
         for (let j = 0; j < 9; j++) {
-            let cell = document.createElement('td');
+            let cell = document.createElement('div');
+            cell.classList.add('cell');
             cell.dataset.row = i;
             cell.dataset.col = j;
 
@@ -252,13 +279,16 @@ function renderBoard(puzzle, restoreInputs = false) {
     addCellSelectionListeners();
 }
 
+
 // Render an empty Sudoku board
 function renderEmptyBoard() {
     sudokuBoard.innerHTML = '';
     for (let i = 0; i < 9; i++) {
-        let row = document.createElement('tr');
+        let row = document.createElement('div');
+        row.classList.add('row');
         for (let j = 0; j < 9; j++) {
-            let cell = document.createElement('td');
+            let cell = document.createElement('div');
+            cell.classList.add('cell');
             cell.dataset.row = i;
             cell.dataset.col = j;
             row.appendChild(cell);
@@ -293,3 +323,57 @@ renderEmptyBoard();
 // Event listeners for game control buttons
 startButton.addEventListener('click', startGame);
 pauseButton.addEventListener('click', togglePauseResume);
+
+// Event listener for erasing content with the erase button
+eraseButton.addEventListener('click', () => {
+    if (selectedCell && !selectedCell.dataset.prefilled) {
+        selectedCell.textContent = ''; // Clear the cell's content
+        selectedCell.classList.remove('user-entered'); // Remove user-entered style
+        clearHighlights();
+    }
+});
+
+
+
+// Function to clear the selected cell
+function clearSelectedCell() {
+    if (selectedCell) {
+        selectedCell.classList.remove('selected');
+        selectedCell = null;
+        clearHighlights();
+    }
+}
+
+document.body.addEventListener('click', (event) => {
+    const isClickInsideBoard = event.target.closest('#sudoku-board');
+    const isClickInsideInteractiveElement = event.target.closest('button, #number-pad');
+
+    // Deselect only if the click is outside the board and not on any button or interactive element
+    if (!isClickInsideBoard && !isClickInsideInteractiveElement) {
+        clearSelectedCell();
+        clearHighlights();
+    }
+});
+
+// Toggle the color palette visibility
+paintButton.addEventListener('click', () => {
+    colorPalette.style.display = colorPalette.style.display === 'flex' ? 'none' : 'flex';
+    event.stopPropagation(); // Prevent closing immediately when clicking on the paint button
+});
+
+// Handle color selection from the palette
+colorPalette.addEventListener('click', (event) => {
+    const colorOption = event.target.closest('.color-option');
+    if (colorOption) {
+        selectedColor = colorOption.getAttribute('data-color');
+        paintButton.style.backgroundColor = selectedColor; // Change paint button color
+        colorPalette.classList.add('hidden'); // Hide color palette after selection
+    }
+    event.stopPropagation();
+});
+
+document.addEventListener('click', (event) => {
+    if (colorPalette.style.display === 'flex') {
+        colorPalette.style.display = 'none';
+    }
+});
