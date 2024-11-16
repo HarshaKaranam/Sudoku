@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=no">
     <title>Sudoku Game</title>
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
@@ -18,10 +18,13 @@
                         <option value="easy">Easy</option>
                         <option value="medium">Medium</option>
                         <option value="hard">Hard</option>
+                        <option value="very hard">Very Hard</option>
+                        <option value="insane">Insane</option>
                     </select>
                 </div>
                 <div id="timer">Time: 00:00</div> <!-- Moved timer here -->
                 <button id="start-game">New Game</button>
+                <button id="challenge-friend">Challenge Friend</button>
             </div>
         </header>
         <main>
@@ -58,13 +61,47 @@
                 </button>
                 <div id="color-palette" class="hidden">
                     <div class="color-option" data-color="#ff595e"></div>
-                    <div class="color-option" data-color="#2366ad"></div>
+                    <div class="color-option" data-color="#9d9d9d"></div>
                     <div class="color-option" data-color="#8ac926"></div>
                 </div>
             </div>
 
         </main>
     </div>
+    <div id="completion-modal" class="modal hidden">
+        <div class="modal-content">
+            <p id="completion-message"></p>
+            <button id="close-modal">Close</button>
+        </div>
+    </div>
+    <!-- Modal for Challenge a Friend -->
+        <div id="challenge-modal" class="modal">
+            <div class="modal-content">
+                <span class="close">&times;</span>
+                <div class="modal-section">
+                    <h3>Generate a Game Code</h3>
+                    <label for="challenge-difficulty">Select Difficulty:</label>
+                    <select id="challenge-difficulty">
+                        <option value="easy">Easy</option>
+                        <option value="medium">Medium</option>
+                        <option value="hard">Hard</option>
+                    </select>
+                    <button id="generate-code">Generate Code</button>
+                </div>
+
+                <div class="modal-section">
+                    <h3>Search for a Game</h3>
+                    <input type="text" id="search-code" placeholder="Enter game code">
+                    <button id="search-game">Search</button>
+                </div>
+
+                <div class="modal-section">
+                    <h3>Game Code/Result</h3>
+                    <div id="game-result"></div>
+                    <button id="start-challenged-game" disabled>Start Game</button>
+                </div>
+            </div>
+        </div>    
     <script src="https://cdn.socket.io/4.0.0/socket.io.min.js"></script>
     <script src="script.js"></script>
 </body>

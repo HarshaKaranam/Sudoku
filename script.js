@@ -11,6 +11,7 @@ const colorPalette = document.getElementById('color-palette');
 
 
 let puzzles = {};
+let currentSolution = [];
 let puzzleBackup;
 let userInputs = []; // Store user inputs when the game is paused
 let timer;
@@ -18,9 +19,9 @@ let time = 0;
 let isPaused = false;
 let isNotesMode = false;
 let selectedCell = null;
-let selectedColor = '#2b6cb0'; // Default color for notes
+let selectedColor = '#9d9d9d'; // Default color for notes
 
-// Load puzzles
+// Load puzzles from sudoku_puzzles.json
 fetch('puzzles_with_codes.json')
     .then(response => response.json())
     .then(data => {
@@ -99,6 +100,14 @@ document.getElementById('number-pad').addEventListener('click', (event) => {
     }
 });
 
+document.addEventListener('keydown', (event) => {
+    if (event.code === "Space") {
+        isNotesMode = !isNotesMode;
+        notesToggleButton.classList.toggle('active', isNotesMode);
+        notesStatusText.textContent = isNotesMode ? 'ON' : 'OFF';
+    }
+});
+
 // Event listener for keyboard number input
 document.addEventListener('keydown', (event) => {
     if (!selectedCell && event.key >= '1' && event.key <= '9') {
@@ -118,6 +127,7 @@ function updateCellValue(value) {
             toggleNoteInCell(selectedCell, value); // Toggle note in Notes mode
         } else {
             toggleRegularInput(selectedCell, value); // Handle regular input
+            checkForCompletion();
         }
     }
 }
@@ -138,10 +148,74 @@ function toggleRegularInput(cell, value) {
         // Otherwise, set the new value
         cell.textContent = value;
         cell.classList.add('user-entered');
+        removeNotesFromRelatedCells(cell, value);
     }
     userInputs[cell.dataset.row][cell.dataset.col] = cell.textContent;
     clearHighlights();
     highlightMatchingNumbers(cell.textContent);
+}
+
+// Function to check if the board is complete and matches the solution
+function checkForCompletion() {
+    const cells = document.querySelectorAll('.cell');
+    const currentBoard = Array.from({ length: 9 }, () => Array(9).fill(0));
+
+    // Fill the currentBoard array with the values from the Sudoku board
+    cells.forEach((cell) => {
+        const row = parseInt(cell.dataset.row, 10);
+        const col = parseInt(cell.dataset.col, 10);
+        currentBoard[row][col] = cell.textContent ? parseInt(cell.textContent, 10) : 0;
+    });
+
+    // Check if all cells are filled
+    const isBoardComplete = currentBoard.flat().every(value => value !== 0);
+
+    if (isBoardComplete) {
+        if (compareBoards(currentBoard, currentSolution)) {
+            // Pause the timer
+            stopTimer();
+
+            // Display a congratulatory message with the elapsed time
+            const elapsedTime = formatTime(time);
+            showCompletionModal(`You've completed the puzzle in ${elapsedTime}.`);
+        } else {
+            showCompletionModal("The board is fully filled, but the solution is incorrect. Keep trying!");
+        }
+    }
+}
+
+// Helper function to compare the current board with the solution
+function compareBoards(board, solution) {
+    for (let row = 0; row < 9; row++) {
+        for (let col = 0; col < 9; col++) {
+            if (board[row][col] !== solution[row][col]) {
+                return false;
+            }
+        }
+    }
+    return true;
+}
+
+// Format time for display
+function formatTime(seconds) {
+    const minutes = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${minutes}m ${secs}s`;
+}
+
+function showCompletionModal(message) {
+    const modal = document.getElementById('completion-modal');
+    const messageElement = document.getElementById('completion-message');
+    const closeModalButton = document.getElementById('close-modal');
+
+    // Set the message and show the modal
+    messageElement.textContent = message;
+    modal.classList.add('show');
+
+    // Close modal on button click
+    closeModalButton.addEventListener('click', () => {
+        modal.classList.remove('show');
+    });
 }
 
 // Toggle note in cell: Adds or removes the note in Notes mode
@@ -165,12 +239,55 @@ function toggleNoteInCell(cell, value) {
         const note = document.createElement('div');
         note.textContent = value;
         note.classList.add(`note-${value}`);
-        note.style.color = selectedColor;
+        note.style.backgroundColor = selectedColor;
         cell.appendChild(note);
     }
     clearHighlights();
 }
 
+// Remove notes of a specific number from the row, column, and 3x3 grid
+function removeNotesFromRelatedCells(cell, value) {
+    const rowIndex = parseInt(cell.dataset.row, 10);
+    const colIndex = parseInt(cell.dataset.col, 10);
+
+    const cells = document.querySelectorAll('.cell');
+
+    // Iterate through all cells
+    cells.forEach((targetCell) => {
+        const targetRowIndex = parseInt(targetCell.dataset.row, 10);
+        const targetColIndex = parseInt(targetCell.dataset.col, 10);
+
+        // Same row, same column, or same 3x3 grid
+        if (
+            targetRowIndex === rowIndex || // Same row
+            targetColIndex === colIndex || // Same column
+            isSameGrid(rowIndex, colIndex, targetRowIndex, targetColIndex) // Same 3x3 grid
+        ) {
+            // Remove the note if the cell is in note mode
+            if (targetCell.classList.contains('note-mode')) {
+                const noteToRemove = targetCell.querySelector(`.note-${value}`);
+                if (noteToRemove) {
+                    targetCell.removeChild(noteToRemove);
+                }
+
+                // If no notes remain, remove the note-mode class
+                if (!targetCell.querySelector('.note-mode div')) {
+                    targetCell.classList.remove('note-mode');
+                }
+            }
+        }
+    });
+}
+
+// Helper function to check if two cells are in the same 3x3 grid
+function isSameGrid(row1, col1, row2, col2) {
+    const gridRow1 = Math.floor(row1 / 3);
+    const gridCol1 = Math.floor(col1 / 3);
+    const gridRow2 = Math.floor(row2 / 3);
+    const gridCol2 = Math.floor(col2 / 3);
+
+    return gridRow1 === gridRow2 && gridCol1 === gridCol2;
+}
 
 // Add a note to the selected cell
 function addNoteToCell(cell, value) {
@@ -243,13 +360,15 @@ function startGame() {
     isPaused = false;
 }
 
-
 // Get a random puzzle based on difficulty
 function getRandomPuzzle(difficulty) {
     const puzzleList = puzzles[difficulty];
     const randomIndex = Math.floor(Math.random() * puzzleList.length);
+    currentSolution = puzzleList[randomIndex].solution;
     return puzzleList[randomIndex].grid;
 }
+
+
 
 // Render the Sudoku board with numbers and optionally restore user inputs
 function renderBoard(puzzle, restoreInputs = false) {
@@ -366,7 +485,7 @@ colorPalette.addEventListener('click', (event) => {
     const colorOption = event.target.closest('.color-option');
     if (colorOption) {
         selectedColor = colorOption.getAttribute('data-color');
-        paintButton.style.backgroundColor = selectedColor; // Change paint button color
+        paintButton.style.borderColor = selectedColor; // Change paint button color
         colorPalette.classList.add('hidden'); // Hide color palette after selection
     }
     event.stopPropagation();
