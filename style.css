@@ -51,7 +51,7 @@ header h1 {
 
 #difficulty {
     font-size: 0.7rem;
-    border-radius: 8px;
+    border-radius: 4px;
 }
 
 .difficulty {
@@ -60,21 +60,23 @@ header h1 {
 
 #start-game{
     font-size: 0.8rem;
+    border-radius: 4px;
 }
 
 #challenge-friend {
     font-size: 0.8rem;
+    border-radius: 4px;
 }
 
 #timer {
-    width: 100px;
+    
     font-size: 0.8rem;
     cursor: default;
-    
+    padding: 0.25rem 0.25rem;
     font-family: monospace;
     background: #f7fafc;
-    padding: 0.25rem 0.75rem;
-    border-radius: 8px;
+    
+    border-radius: 4px;
     color: #4a5568;
 }
 
