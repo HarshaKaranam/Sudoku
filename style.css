@@ -193,7 +193,7 @@ button {
 .cell {
     width: 100%;
     aspect-ratio: 1 / 1;
-    font-size: 200%;
+    font-size: 100%;
     font-weight: 450;
     line-height: 1;
     text-align: center;
