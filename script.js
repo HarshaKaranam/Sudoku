@@ -9,6 +9,118 @@ const eraseButton = document.getElementById('erase-button');
 const paintButton = document.getElementById('paint-button');
 const colorPalette = document.getElementById('color-palette');
 
+const hamburgerMenu = document.getElementById('hamburger-menu');
+const sidePanel = document.getElementById('side-panel');
+const closePanelButton = document.getElementById('close-panel');
+
+const challengeFriendButton = document.getElementById('challenge-friend');
+const modal = document.getElementById('challenge-modal');
+const closeModal = document.querySelector('.close');
+const generateCodeButton = document.getElementById('generate-code');
+const searchGameButton = document.getElementById('search-game');
+const gameResultDiv = document.getElementById('game-result');
+const startChallengedGameButton = document.getElementById('start-challenged-game');
+const challengeDifficultySelect = document.getElementById('challenge-difficulty');
+const searchInput = document.getElementById('search-code');
+
+// Challenge Friend Modal logic
+challengeFriendButton.addEventListener('click', () => {
+    modal.style.display = "block";
+});
+
+closeModal.addEventListener('click', () => {
+    modal.style.display = "none";
+});
+
+window.addEventListener('click', (event) => {
+    if (event.target === modal) {
+        modal.style.display = "none";
+    }
+});
+
+// Generate game code
+generateCodeButton.addEventListener('click', () => {
+    const difficulty = challengeDifficultySelect.value;
+    const puzzle = getRandomPuzzleWithCode(difficulty);
+    puzzleBackup = puzzle.grid;
+    gameResultDiv.innerText = `Generated Game Code: ${puzzle.code}`;
+    startChallengedGameButton.disabled = false; // Enable start button
+});
+
+// Search for game by code
+searchGameButton.addEventListener('click', () => {
+    const code = searchInput.value.trim();
+    const puzzle = findPuzzleByCode(code);
+    if (puzzle) {
+        puzzleBackup = puzzle.grid;
+        gameResultDiv.innerText = `Game found! Code: ${puzzle.code}`;
+        startChallengedGameButton.disabled = false; // Enable start button
+    } else {
+        gameResultDiv.innerText = 'Game not found';
+        startChallengedGameButton.disabled = true;
+    }
+});
+
+// Start game with challenged or searched puzzle
+startChallengedGameButton.addEventListener('click', () => {
+    modal.style.display = "none";
+    renderBoard(puzzleBackup);
+    resetTimer();
+    startTimer();
+    pauseButton.disabled = false; // Enable pause button
+    pauseButton.innerHTML = '<i class="fas fa-pause"></i>';
+    isPaused = false;
+});
+
+function findPuzzleByCode(code) {
+    for (let difficulty in puzzles) {
+        const puzzle = puzzles[difficulty].find(puzzle => puzzle.code === code);
+        if (puzzle) {
+            return puzzle;
+        }
+    }
+    return null;
+}
+
+function getRandomPuzzleWithCode(difficulty) {
+    const puzzleList = puzzles[difficulty];
+    const randomIndex = Math.floor(Math.random() * puzzleList.length);
+    return puzzleList[randomIndex];
+}
+
+// Open side panel
+hamburgerMenu.addEventListener('click', () => {
+    sidePanel.classList.toggle('show');
+});
+
+
+// Close side panel
+closePanelButton.addEventListener('click', () => {
+    sidePanel.classList.remove('show');
+});
+
+// Optional: Close the side panel when clicking outside
+document.addEventListener('click', (event) => {
+    if (!sidePanel.contains(event.target) && !hamburgerMenu.contains(event.target)) {
+        sidePanel.classList.remove('show');
+    }
+});
+
+// Add event listeners to side panel buttons
+document.getElementById('play-solo').addEventListener('click', () => {
+    window.location.href = 'index.html'; // Redirect to Sudoku page
+});
+
+
+document.getElementById('solver').addEventListener('click', () => {
+    window.location.href = 'solver.html'; // Redirect to Solver page
+});
+
+document.getElementById('learn').addEventListener('click', () => {
+    window.location.href = 'learn.html'; // Redirect to Learn page
+});
+
+
 
 let puzzles = {};
 let currentSolution = [];
@@ -19,7 +131,7 @@ let time = 0;
 let isPaused = false;
 let isNotesMode = false;
 let selectedCell = null;
-let selectedColor = '#9d9d9d'; // Default color for notes
+let selectedColor = '#9d9d9d00'; // Default color for notes
 
 // Load puzzles from sudoku_puzzles.json
 fetch('puzzles_with_codes.json')
@@ -204,17 +316,17 @@ function formatTime(seconds) {
 }
 
 function showCompletionModal(message) {
-    const modal = document.getElementById('completion-modal');
-    const messageElement = document.getElementById('completion-message');
-    const closeModalButton = document.getElementById('close-modal');
+    const completionModal = document.getElementById('completion-modal');
+    const completionMessage = document.getElementById('completion-message');
+    const closeCompletionModalButton = document.getElementById('close-completion-modal');
 
     // Set the message and show the modal
-    messageElement.textContent = message;
-    modal.classList.add('show');
+    completionMessage.textContent = message;
+    completionModal.classList.add('show');
 
     // Close modal on button click
-    closeModalButton.addEventListener('click', () => {
-        modal.classList.remove('show');
+    closeCompletionModalButton.addEventListener('click', () => {
+        completionModal.classList.remove('show');
     });
 }
 

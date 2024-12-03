@@ -10,7 +10,23 @@
 <body>
     <div class="container">
         <header>
-            <h1>SUDOKU</h1>
+            <div class="header-row">
+                <div id="hamburger-menu">
+                    <i class="fas fa-bars"></i> <!-- Font Awesome hamburger menu icon -->
+                </div>
+                <h1>SUDOKU</h1>
+            </div>
+            <!-- Side Panel -->
+            <div id="side-panel">
+                <button id="close-panel">&times;</button>
+                <ul>
+                    <li><a href="index.html" id="play-solo">Play Solo</a></li>
+                    
+                    <li><a href="solver.html" id="solver">Solver</a></li>
+                    <li><a href="learn.html" id="learn">Learn</a></li>
+                </ul>
+            </div>
+
             <div class="controls">
                 <div class="difficulty">
                     <label for="difficulty">Difficulty: </label>
@@ -61,26 +77,24 @@
                 </button>
                 <div id="color-palette" class="hidden">
                     <div class="color-option" data-color="#ff595e"></div>
-                    <div class="color-option" data-color="#9d9d9d"></div>
+                    <div class="color-option" data-color="9d9d9d00"></div>
                     <div class="color-option" data-color="#8ac926"></div>
                 </div>
             </div>
-
         </main>
-    </div>
-    <div id="completion-modal" class="modal hidden">
-        <div class="modal-content">
-            <p id="completion-message"></p>
-            <button id="close-modal">Close</button>
+        <div id="completion-modal" class="modal1 hidden">
+            <div class="completion-modal-content">
+                <p id="completion-message"></p>
+                <button id="close-completion-modal">Close</button>
+            </div>
         </div>
-    </div>
-    <!-- Modal for Challenge a Friend -->
+        <!-- Modal for Challenge a Friend -->
         <div id="challenge-modal" class="modal">
             <div class="modal-content">
                 <span class="close">&times;</span>
                 <div class="modal-section">
                     <h3>Generate a Game Code</h3>
-                    <label for="challenge-difficulty">Select Difficulty:</label>
+                    <label for="challenge-difficulty">Difficulty:</label>
                     <select id="challenge-difficulty">
                         <option value="easy">Easy</option>
                         <option value="medium">Medium</option>
@@ -101,7 +115,8 @@
                     <button id="start-challenged-game" disabled>Start Game</button>
                 </div>
             </div>
-        </div>    
+        </div>        
+    </div>
     <script src="https://cdn.socket.io/4.0.0/socket.io.min.js"></script>
     <script src="script.js"></script>
 </body>
