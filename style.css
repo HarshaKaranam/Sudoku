@@ -311,7 +311,7 @@ button {
 }
 
 .cell.note-mode div {
-    font-size: 35%;
+    font-size: 30%;
     display: flex;
     align-items: center;
     justify-content: center;
