@@ -193,8 +193,8 @@ button {
 .cell {
     width: 100%;
     aspect-ratio: 1 / 1;
-    font-size: 100%;
-    font-weight: 450;
+    font-size: 200%;
+    font-weight: 300;
     line-height: 1;
     text-align: center;
     display: flex;
@@ -209,27 +209,27 @@ button {
 
 /* Borders for the 3x3 grids */
 .row:nth-child(3n) .cell {
-    border-bottom: 3px solid #333;
+    border-bottom: 2px solid #333;
 }
 
 .cell:nth-child(3n) {
-    border-right: 3px solid #333;
+    border-right: 2px solid #333;
 }
 
 .row:first-child .cell {
-    border-top: 3px solid #333;
+    border-top: 2px solid #333;
 }
 
 .cell:first-child {
-    border-left: 3px solid #333;
+    border-left: 2px solid #333;
 }
 
 .row:last-child .cell {
-    border-bottom: 3px solid #333;
+    border-bottom: 2px solid #333;
 }
 
 .cell:last-child {
-    border-right: 3px solid #333;
+    border-right: 2px solid #333;
 }
 
 
@@ -311,15 +311,14 @@ button {
 }
 
 .cell.note-mode div {
-    font-size: 0.9rem;
+    font-size: 40%;
     display: flex;
     align-items: center;
     justify-content: center;
     border-radius: 50%;
     aspect-ratio: 1 / 1; /* Ensures the element remains a square */
     font-weight: bold;
-    width: 90%;
-    height: 90%;
+    width: 80%;
     margin: auto;
 }
 
