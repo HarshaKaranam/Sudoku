@@ -194,7 +194,7 @@ button {
     width: 100%;
     aspect-ratio: 1 / 1;
     font-size: 200%;
-    font-weight: 300;
+    font-weight: 200;
     line-height: 1;
     text-align: center;
     display: flex;
@@ -311,7 +311,7 @@ button {
 }
 
 .cell.note-mode div {
-    font-size: 40%;
+    font-size: 35%;
     display: flex;
     align-items: center;
     justify-content: center;
