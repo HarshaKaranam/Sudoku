@@ -210,26 +210,32 @@ button {
 /* Borders for the 3x3 grids */
 .row:nth-child(3n) .cell {
     border-bottom: 2px solid #333;
+    box-sizing: border-box;
 }
 
 .cell:nth-child(3n) {
     border-right: 2px solid #333;
+    box-sizing: border-box;
 }
 
 .row:first-child .cell {
     border-top: 2px solid #333;
+    box-sizing: border-box;
 }
 
 .cell:first-child {
     border-left: 2px solid #333;
+    box-sizing: border-box;
 }
 
 .row:last-child .cell {
     border-bottom: 2px solid #333;
+    box-sizing: border-box;
 }
 
 .cell:last-child {
     border-right: 2px solid #333;
+    box-sizing: border-box;
 }
 
 
@@ -308,7 +314,6 @@ button {
     grid-template-columns: repeat(3, 1fr);
     grid-template-rows: repeat(3, 1fr);
     color: #2b6cb0;
-    box-sizing: border-box;
 }
 
 .cell.note-mode div {
@@ -321,7 +326,7 @@ button {
     font-weight: bold;
     width: 80%;
     margin: auto;
-    box-sizing: border-box;
+    
 }
 
 /* Positioning for each number in Notes mode */
