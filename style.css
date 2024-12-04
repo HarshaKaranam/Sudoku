@@ -308,6 +308,7 @@ button {
     grid-template-columns: repeat(3, 1fr);
     grid-template-rows: repeat(3, 1fr);
     color: #2b6cb0;
+    box-sizing: border-box;
 }
 
 .cell.note-mode div {
@@ -320,6 +321,7 @@ button {
     font-weight: bold;
     width: 80%;
     margin: auto;
+    box-sizing: border-box;
 }
 
 /* Positioning for each number in Notes mode */
