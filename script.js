@@ -43,6 +43,7 @@ generateCodeButton.addEventListener('click', () => {
     const difficulty = challengeDifficultySelect.value;
     const puzzle = getRandomPuzzleWithCode(difficulty);
     puzzleBackup = puzzle.grid;
+    currentSolution = puzzle.solution
     gameResultDiv.innerText = `Generated Game Code: ${puzzle.code}`;
     startChallengedGameButton.disabled = false; // Enable start button
 });
