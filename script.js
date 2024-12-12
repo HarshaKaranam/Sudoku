@@ -262,7 +262,7 @@ function toggleRegularInput(cell, value) {
         cell.classList.add('user-entered');
         removeNotesFromRelatedCells(cell, value);
     }
-    userInputs[cell.dataset.row][cell.dataset.col] = cell.textContent.trim();
+    userInputs[cell.dataset.row][cell.dataset.col] = cell.textContent;
     clearHighlights();
     highlightMatchingNumbers(cell.textContent);
 }
