@@ -67,6 +67,7 @@ startChallengedGameButton.addEventListener('click', () => {
     renderBoard(puzzleBackup);
     resetTimer();
     startTimer();
+    saveUserInputs();
     pauseButton.disabled = false; // Enable pause button
     pauseButton.innerHTML = '<i class="fas fa-pause"></i>';
     isPaused = false;
